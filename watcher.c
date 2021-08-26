@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <unistd.h>
 #include <sys/types.h>
-#include <linux/inotify.h>
-
+#include <sys/inotify.h>
 
 int main ()  
 {  
@@ -22,7 +22,6 @@ int main ()
     __attribute__ ((aligned (__alignof__ (struct inotify_event))));
   const struct inotify_event *event;
 
-  int i;
 
   ssize_t len;
   char *ptr;
@@ -50,9 +49,14 @@ int main ()
       else if (event->mask & IN_CLOSE_WRITE)
         printf ("Closed write: %s\n", event->name);
       else
-        printf("dunno %s\n", event->name);
+        printf("Different event name: %s\n", event->name);
     }
   }
+
+  /*removing the directory from the watch list.*/
+  inotify_rm_watch(fd,wd);
+  /*closing the INOTIFY instance*/
+  close(fd);
 
   return 0;
 }
